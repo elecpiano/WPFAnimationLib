@@ -78,27 +78,29 @@ namespace Animation
             _Storyboard.Children.Add(_Animation_Y);
         }
 
-        public static MoveAnimation MoveTo(FrameworkElement cell, double x, double y, TimeSpan duration, Action<FrameworkElement> completed)
+        public static MoveAnimation MoveTo(FrameworkElement cell, double x, double y, TimeSpan duration, IEasingFunction easing = null, Action<FrameworkElement> completed = null)
         {
             MoveAnimation animation = CreateNewAnimation(cell);
-            animation.InstanceMoveTo(cell, x, y, duration, completed);
+            animation.InstanceMoveTo(cell, x, y, duration, easing, completed);
             return animation;
         }
 
-        public static MoveAnimation MoveBy(FrameworkElement cell, double x, double y, TimeSpan duration, Action<FrameworkElement> completed)
+        public static MoveAnimation MoveBy(FrameworkElement cell, double x, double y, TimeSpan duration, IEasingFunction easing = null, Action<FrameworkElement> completed = null)
         {
             MoveAnimation animation = CreateNewAnimation(cell);
-            animation.InstanceMoveBy(cell, x, y, duration, completed);
+            animation.InstanceMoveBy(cell, x, y, duration, easing, completed);
             return animation;
         }
 
         public static MoveAnimation MoveFromTo(FrameworkElement cell,
             double from_x, double from_y,
             double to_x, double to_y,
-            TimeSpan duration, Action<FrameworkElement> completed)
+            TimeSpan duration,
+            IEasingFunction easing = null,
+            Action<FrameworkElement> completed = null)
         {
             MoveAnimation animation = CreateNewAnimation(cell);
-            animation.InstanceMoveFromTo(cell, from_x, from_y, to_x, to_y, duration, completed);
+            animation.InstanceMoveFromTo(cell, from_x, from_y, to_x, to_y, duration, easing, completed);
             return animation;
         }
 
@@ -128,7 +130,7 @@ namespace Animation
             return new MoveAnimation(indexOfTargetTransform);
         }
 
-        public void InstanceMoveBy(FrameworkElement cell, double x, double y, TimeSpan duration, Action<FrameworkElement> completed)
+        public void InstanceMoveBy(FrameworkElement cell, double x, double y, TimeSpan duration, IEasingFunction easing = null, Action<FrameworkElement> completed = null)
         {
             /*value*/
             TransformGroup transformGroup = cell.RenderTransform as TransformGroup;
@@ -155,13 +157,15 @@ namespace Animation
             var fromY = translateTransform.Y;
             var toY = fromY + y;
 
-            this.Animate(cell, fromX, fromY, toX, toY, duration, completed);
+            this.Animate(cell, fromX, fromY, toX, toY, duration, easing, completed);
         }
 
         public void InstanceMoveFromTo(FrameworkElement cell,
             double from_x, double from_y,
             double to_x, double to_y,
-            TimeSpan duration, Action<FrameworkElement> completed)
+            TimeSpan duration,
+            IEasingFunction easing = null,
+            Action<FrameworkElement> completed = null)
         {
 
             TransformGroup transformGroup = cell.RenderTransform as TransformGroup;
@@ -182,10 +186,10 @@ namespace Animation
                 transformGroup.Children.Add(translateTransform);
             }
 
-            this.Animate(cell, from_x, from_y, to_x, to_y, duration, completed);
+            this.Animate(cell, from_x, from_y, to_x, to_y, duration, easing, completed);
         }
 
-        public void InstanceMoveTo(FrameworkElement cell, double x, double y, TimeSpan duration, Action<FrameworkElement> completed)
+        public void InstanceMoveTo(FrameworkElement cell, double x, double y, TimeSpan duration, IEasingFunction easing = null, Action<FrameworkElement> completed = null)
         {
             TransformGroup transformGroup = cell.RenderTransform as TransformGroup;
             TranslateTransform translateTransform = null;
@@ -205,10 +209,10 @@ namespace Animation
                 transformGroup.Children.Add(translateTransform);
             }
 
-            this.Animate(cell, translateTransform.X, translateTransform.Y, x, y, duration, completed);
+            this.Animate(cell, translateTransform.X, translateTransform.Y, x, y, duration, easing, completed);
         }
 
-        private void Animate(FrameworkElement cell, double fromX, double fromY, double ToX, double ToY, TimeSpan duration, Action<FrameworkElement> completed)
+        private void Animate(FrameworkElement cell, double fromX, double fromY, double ToX, double ToY, TimeSpan duration, IEasingFunction easing, Action<FrameworkElement> completed)
         {
             AnimationTarget = cell;
             TargetX = ToX;
@@ -233,6 +237,10 @@ namespace Animation
             _KeyFrame_x_to.Value = ToX;
             _KeyFrame_y_from.Value = fromY;
             _KeyFrame_y_to.Value = ToY;
+
+            /*easing*/
+            _KeyFrame_x_to.EasingFunction = easing;
+            _KeyFrame_y_to.EasingFunction = easing;
 
             Storyboard.SetTarget(_Animation_X, AnimationTarget);
             Storyboard.SetTarget(_Animation_Y, AnimationTarget);
